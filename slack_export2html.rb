@@ -21,8 +21,12 @@ begin
                 # ディレクトリに含まれないファイルは無視する
                 next if not zip_entry.name.include?("/")
 
+                if entry[zip_entry.name].nil?
+                    entry[zip_entry.name] = Array.new
+                end
+
                 JSON.parse(zip_entry.get_input_stream.read).each do |item|
-                    entry[zip_entry.name] = [item["text"], item["ts"]]
+                    entry[zip_entry.name].push([item["text"], item["ts"]])
                 end
             end
         end
@@ -31,13 +35,30 @@ rescue
     puts "Cannot open " + $ARGV[0]
 end
 
-result = Hash.new([])
+result = Hash.new
 entry.sort.each do |item|
     channel = item[0].split('/')[0]
-    result[channel] = result[channel].push(item[1])
+    if result[channel].nil?
+        result[channel] = Array.new
+    end
+    result[channel].push(item[1])
 end
 
-result.each do |key, value|
-    p key
-    p value
+result.each_key do |result_key|
+    file = File.open(result_key + ".html", "w")
+
+    result[result_key].each do |day_item|
+        day_item.each do |item|
+            text = item[0]
+            ts   = item[1]
+            date = Time.at(ts.to_i).strftime("%Y-%m-%d")
+
+            file.write date + "\n"
+            file.write text + "\n"
+        end
+        #if text =~ /https:\/\/ceramiqueheart.slack.com\/files\/UAYPYA9K7\/.+/
+        #    
+        #end
+
+    end
 end
