@@ -56,9 +56,5 @@ result.each_key do |result_key|
             file.write date + "\n"
             file.write text + "\n"
         end
-        #if text =~ /https:\/\/ceramiqueheart.slack.com\/files\/UAYPYA9K7\/.+/
-        #    
-        #end
-
     end
 end
