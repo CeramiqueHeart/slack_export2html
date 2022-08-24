@@ -51,12 +51,17 @@ result.each_key do |result_key|
         day_item.each do |item|
             date = Time.at(item["ts"].to_i).strftime("%Y-%m-%d")
 
-            # textが空の場合はfilesとして処理する
             if item["text"].length == 0
+                # textが空の場合はfilesとして処理する
                 url = item["files"][0]["url_private_download"]
-                contents = "<a href='" + url + "'>" + url + "</a>"
+                contents = "<a href='" + url + "'>" + "download" + "</a>"
             else
-                contents = item["text"]
+                if item["files"].nil?
+                    contents = item["text"]
+                else
+                    url = item["files"][0]["url_private_download"]
+                    contents = item["text"] + "<a href='" + url + "'>" + "download" + "</a>"
+                end
             end
 
             file.write "<p>\n"
