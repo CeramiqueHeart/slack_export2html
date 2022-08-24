@@ -62,7 +62,7 @@ result.each_key do |result_key|
             else
                 if item["files"].nil?
                     # filesが空の場合はtextとして処理する
-                    contents = item["text"]
+                    contents = item["text"].gsub(/</,'&lt;').gsub(/>/,'&gt;')
                 else
                     # filesが空でない場合は download リンクとして表示する
                     url = item["files"][0]["url_private_download"]
