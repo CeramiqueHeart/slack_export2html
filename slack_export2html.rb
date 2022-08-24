@@ -9,31 +9,31 @@ end
 
 entry = Hash.new
 
-begin
+#begin
     Dir.mktmpdir do |tmpdir|
         Zip::File.open($ARGV[0]) do |zip|
-            zip.each do |zip_entry|
-                zip.extract(zip_entry, tmpdir + zip_entry.name) { true }
+            zip.each do |zip_file|
+                zip.extract(zip_file, tmpdir + zip_file.name) { true }
 
                 # ディレクトリは無視する
-                next if zip_entry.name.slice(-1) == "/"
+                next if zip_file.name.slice(-1) == "/"
 
                 # ディレクトリに含まれないファイルは無視する
-                next if not zip_entry.name.include?("/")
+                next if not zip_file.name.include?("/")
 
-                if entry[zip_entry.name].nil?
-                    entry[zip_entry.name] = Array.new
+                if entry[zip_file.name].nil?
+                    entry[zip_file.name] = Array.new
                 end
 
-                JSON.parse(zip_entry.get_input_stream.read).each do |item|
-                    entry[zip_entry.name].push([item["text"], item["ts"]])
+                JSON.parse(zip_file.get_input_stream.read).each do |item|
+                    entry[zip_file.name].push(item)
                 end
             end
         end
     end
-rescue
-    puts "Cannot open " + $ARGV[0]
-end
+#rescue
+#    puts "Cannot open " + $ARGV[0]
+#end
 
 result = Hash.new
 entry.sort.each do |item|
@@ -49,12 +49,25 @@ result.each_key do |result_key|
 
     result[result_key].each do |day_item|
         day_item.each do |item|
-            text = item[0]
-            ts   = item[1]
-            date = Time.at(ts.to_i).strftime("%Y-%m-%d")
+            date = Time.at(item["ts"].to_i).strftime("%Y-%m-%d")
+
+            # textが空の場合はfilesとして処理する
+            if item["text"].nil?
+                contents = item["files"][0]["url_private_download"]
+            else
+                contents = item["text"]
+            end
 
             file.write date + "\n"
-            file.write text + "\n"
+            file.write contents + "\n"
         end
+ #       day_item.each do |item|
+ #           text = item[0]
+ #           ts   = item[1]
+ #           date = Time.at(ts.to_i).strftime("%Y-%m-%d")
+#
+ #           file.write date + "\n"
+ #           file.write text + "\n"
+ #       end
     end
 end
