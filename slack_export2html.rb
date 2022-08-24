@@ -55,10 +55,16 @@ result.each_key do |result_key|
                 # textが空の場合はfilesとして処理する
                 url = item["files"][0]["url_private_download"]
                 contents = "<a href='" + url + "'>" + "download" + "</a>"
+            elsif item["text"].start_with?("<http")
+                # textがURLの場合はlinkとして処理する
+                url = item["text"].gsub(/</, '').gsub(/>/, '')
+                contents = "<a href='" + url + "'>" + url + "</a>"
             else
                 if item["files"].nil?
+                    # filesが空の場合はtextとして処理する
                     contents = item["text"]
                 else
+                    # filesが空でない場合は download リンクとして表示する
                     url = item["files"][0]["url_private_download"]
                     contents = item["text"] + "<a href='" + url + "'>" + "download" + "</a>"
                 end
