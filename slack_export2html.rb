@@ -9,7 +9,7 @@ end
 
 entry = Hash.new
 
-#begin
+begin
     Dir.mktmpdir do |tmpdir|
         Zip::File.open($ARGV[0]) do |zip|
             zip.each do |zip_file|
@@ -31,9 +31,9 @@ entry = Hash.new
             end
         end
     end
-#rescue
-#    puts "Cannot open " + $ARGV[0]
-#end
+rescue
+    puts "Cannot open " + $ARGV[0]
+end
 
 result = Hash.new
 entry.sort.each do |item|
